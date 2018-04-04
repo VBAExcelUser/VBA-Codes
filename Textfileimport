@@ -1,0 +1,98 @@
+Sub Dataimport()
+Dim strPfad As String
+Dim FSO As Object
+Dim file
+Dim lngLR As Long
+Dim count As Integer
+Dim Arr As Variant
+Dim L As Long
+Dim Tmp As Variant
+Dim vnt_Ausgabe As Variant
+Dim i As Integer
+Dim Str_String As String
+Dim a As Integer
+a = 3
+
+With Application
+        .ScreenUpdating = False
+        .EnableEvents = False
+        .Calculation = xlCalculationManual
+    End With
+
+'********************************
+'Anpassen
+'W:\EEV_Werkstoffdaten\Verdichterraeder\
+strPfad = "W:\EEV_Werkstoffdaten\Eingang\4. Auswertung bis 03.04 s\"
+
+'********************************
+Set FSO = CreateObject("scripting.filesystemobject")
+Start:
+For Each file In FSO.getfolder(strPfad).Files
+        
+        strFilename = file.Name
+        
+        'Verhindern, dass gleiche Dateien doppelt eingebunden werden
+        
+        If InStr(17, strFilename, "_O", vbTextCompare) > 10 Then
+            Debug.Print InStr(17, strFilename, "_O", vbTextCompare)
+            GoTo Start
+        End If
+        Debug.Print InStr(17, strFilename, "_O", vbTextCompare)
+        
+        '*************************************
+        'Anpassen (Die 1 in cells(...,1) steht für die Spalte A
+        'Wenn angepasst werden muss dann den Buchstabe (z.B. A zu B) verändern und Zahl verändern (dann 1 zu 2)
+        i = 1
+        strDestination = "A" & Cells(i + 2, 3).End(xlUp).row
+        '*************************************
+        
+        With ActiveSheet.QueryTables.Add(Connection:="TEXT;" & strPfad & strFilename, Destination:=Range(strDestination))
+        .Name = "Uebersicht" 'Name des Tabellenblattes nach Import
+        .FieldNames = True
+        .RowNumbers = False
+        .FillAdjacentFormulas = False
+        .PreserveFormatting = True
+        .RefreshOnFileOpen = False
+        .RefreshStyle = xlInsertDeleteCells
+        .SavePassword = False
+        .SaveData = True
+        .AdjustColumnWidth = True
+        .RefreshPeriod = 0
+        .TextFilePromptOnRefresh = False
+        .TextFilePlatform = 850
+        .TextFileStartRow = 1
+        .TextFileParseType = xlDelimited
+        .TextFileTextQualifier = xlTextQualifierDoubleQuote
+        
+        '****************************************************
+        'Hier kannst du das Trennzeichen einstellen (Leerzeichen ist eingestellt)
+        .TextFileConsecutiveDelimiter = False
+        .TextFileTabDelimiter = True
+        .TextFileSemicolonDelimiter = True
+        .TextFileCommaDelimiter = False
+        .TextFileSpaceDelimiter = False
+        
+        '****************************************************
+        .TextFileColumnDataTypes = Array(1, 1, 1, 1, 1, 1)
+        .TextFileTrailingMinusNumbers = True
+        .Refresh BackgroundQuery:=False
+    End With
+        
+        'Datum miteinbinden
+        strFiledate = file.DateLastModified
+        Debug.Print strFiledate
+        strFiledate = Format(strFiledate, "dd.mm.yyyy")
+        Cells(1, a) = strFiledate
+        
+        'Datei kennzeichnen, da eingebunden
+        file.Name = strFilename & "_O"
+        
+Next
+
+With Application
+        .ScreenUpdating = True
+        .EnableEvents = True
+        .Calculation = xlCalculationAutomatic
+    End With
+End Sub
+
