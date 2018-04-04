@@ -1,0 +1,51 @@
+Sub Zwischenräume()
+
+    With Application
+        .ScreenUpdating = False
+        .EnableEvents = False
+        .Calculation = xlCalculationManual
+    End With
+'--------------------
+' hier dann der Code
+'--------------------
+
+    Dim coldat As Integer
+    Dim rowdat As Integer
+    
+    Dim colges As Integer
+    Dim rowges As Integer
+
+    For i = 0 To 3 Step 1
+    
+    For colges = 1 To 41 Step 1
+                Debug.Print colges
+                Cells(50, colges).Activate
+                
+                Selection.End(xlDown).Select
+                Selection.End(xlDown).Select
+    
+                
+                If ActiveCell.row < 6000 Then
+                    Range(Selection, Selection.End(xlUp)).Select
+                    Selection.Delete Shift:=xlUp
+                End If
+
+    Next
+    
+    Next i
+    
+    Rows("2000:2000").Select
+    Range(Selection, Selection.End(xlDown)).Select
+    Range(Selection, Selection.End(xlDown)).Select
+    Selection.Delete Shift:=xlUp
+    
+    
+With Application
+        .ScreenUpdating = True
+        .EnableEvents = True
+        .Calculation = xlCalculationAutomatic
+        
+End With
+
+
+End Sub
